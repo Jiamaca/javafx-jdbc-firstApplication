@@ -31,12 +31,12 @@ public class MainViewerController implements Initializable {
 		System.out.println("onMenuItemSellerAction");
 	}
 	
-	public void onMenuItemDepartmentAction() {
-		System.out.println("onMenuItemDepartmentAction");
-	}
-	
 	public void onMenuItemAboutAction() {
 		loadView("/gui/About.fxml");
+	}
+	
+	public void onMenuItemDepartmentAction() {
+		loadView("/gui/DepartmentList.fxml");
 	}
 	
 	public void initialize(URL uri, ResourceBundle rb) {
