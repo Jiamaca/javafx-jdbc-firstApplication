@@ -3,6 +3,7 @@ package gui;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 import application.Main;
 import gui.util.Alerts;
@@ -33,11 +34,14 @@ public class MainViewerController implements Initializable {
 	}
 	
 	public void onMenuItemAboutAction() {
-		loadView("/gui/About.fxml");
+		loadView("/gui/About.fxml", x -> {});
 	}
 	
 	public void onMenuItemDepartmentAction() {
-		loadView2("/gui/DepartmentList.fxml");
+		loadView("/gui/DepartmentList.fxml",(DepartmentListController controller) ->{ 
+			controller.setDepartmentService(new DepartmentService());
+			controller.updateTableView();
+		});
 	}
 	
 	public void initialize(URL uri, ResourceBundle rb) {
@@ -45,7 +49,7 @@ public class MainViewerController implements Initializable {
 	}
 	
 	//Esse metódo serve para trocar a scene atual
-	private synchronized void loadView(String absoluteName) {
+	private synchronized <T> void loadView(String absoluteName, Consumer<T> initializingAction) {
 		
 		try {
 			
@@ -67,39 +71,8 @@ public class MainViewerController implements Initializable {
 			//adicionando os filhos da vbox desejada
 			mainVBox.getChildren().addAll(newVbox.getChildren());
 			
- 			
-		} catch (IOException e) {
-			Alerts.showAlert("IO Exception", "Error loading view", e.getMessage(), AlertType.ERROR);
-		}
-		
-	}
-	
-	private synchronized void loadView2(String absoluteName) {
-		
-		try {
-			
-			//O primeiro passo é pegar qual é a view que queremos.
-			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
-			VBox newVbox = loader.load();
-			
-			//O segundo é pegar a scene que estava sendo usada até então.
-			Scene mainScene = Main.getMainScene();
-			
-			//Aqui nós estamos pegando a VBox da scene atual para atualizar
-			VBox mainVBox = (VBox) ((ScrollPane) mainScene.getRoot()).getContent();
-			//Antes temos que salvar o que estava ali 
-			Node mainMenu = mainVBox.getChildren().get(0);
-			//limpando os filhos da vbox
-			mainVBox.getChildren().clear();
-			//adicionando a barra novamente 
-			mainVBox.getChildren().add(mainMenu);
-			//adicionando os filhos da vbox desejada
-			mainVBox.getChildren().addAll(newVbox.getChildren());
-			
-			DepartmentListController controller = loader.getController();
-			controller.setDepartmentService(new DepartmentService());
-			controller.updateTableView();
- 			
+			T controller = loader.getController();
+ 			initializingAction.accept(controller);
 		} catch (IOException e) {
 			Alerts.showAlert("IO Exception", "Error loading view", e.getMessage(), AlertType.ERROR);
 		}
