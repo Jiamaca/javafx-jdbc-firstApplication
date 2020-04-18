@@ -207,14 +207,11 @@ public class SellerDaoJDBC implements SellerDao{
 			return sellers;
 			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			throw new DbException(e.getMessage());
 		} finally {
 			DB.closeStatement(st);
 			DB.closeResultSet(rs);
-		}
-		
-		
+		}	
 	}
 
 	public Department instantiateDeparment(ResultSet rs) throws SQLException {
