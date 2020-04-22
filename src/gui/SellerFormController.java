@@ -1,6 +1,8 @@
 package gui;
 
 import java.net.URL;
+import java.sql.Date;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -97,7 +99,6 @@ public class SellerFormController implements Initializable {
 			service.saveOrUpdate(entity);
 			notifyDataChangeListeners();
 			Utils.currentStage(event).close();
-			;
 
 		} catch (DbException e) {
 			Alerts.showAlert("Erro ao salvar objeto", null, e.getMessage(), AlertType.ERROR);
@@ -123,8 +124,32 @@ public class SellerFormController implements Initializable {
 		if (txtName.getText() == null || txtName.getText().trim().equals("")) {
 			exception.addError("name", "Esse campo não pode estar vazio");
 		}
-
+		
 		seller.setName(txtName.getText());
+		
+		if (txtEmail.getText() == null || txtEmail.getText().trim().equals("")) {
+			exception.addError("email", "Esse campo não pode estar vazio");
+		}
+		
+		seller.setEmail(txtEmail.getText());
+		
+		if (dpBirthDate.getValue() == null) {
+			exception.addError("birthDate", "Esse campo não pode estar vazio");
+		}
+		
+		else {
+			Instant instant = Instant.from(dpBirthDate.getValue().atStartOfDay(ZoneId.systemDefault()));
+			seller.setBirthDate(Date.from(instant));
+		}
+		
+		
+		if (txtBaseSalary.getText() == null || txtBaseSalary.getText().trim().equals("")) {
+			exception.addError("baseSalary", "Esse campo não pode estar vazio");
+		}
+
+		seller.setBaseSalary(Utils.tryParseToDouble(txtBaseSalary.getText()));
+		
+		seller.setDepartment(comboBoxDepartment.getValue());
 
 		if (exception.getErrors().size() > 0) {
 			throw exception;
@@ -194,10 +219,12 @@ public class SellerFormController implements Initializable {
 
 	private void setErrorMessages(Map<String, String> errors) {
 		Set<String> fields = errors.keySet();
-
-		if (fields.contains("name")) {
-			labelErrorName.setText(errors.get("name"));
-		}
+		
+		labelErrorName.setText((fields.contains("name") ? errors.get("name") : ""));
+		labelErrorEmail.setText((fields.contains("email") ? errors.get("email") : ""));
+		labelErrorBaseSalary.setText((fields.contains("baseSalary") ? errors.get("baseSalary") : ""));
+		labelErrorBirthDate.setText((fields.contains("birthDate") ? errors.get("birthDate") : ""));
+		
 	}
 
 	public void loadAssociatedObjects() {
